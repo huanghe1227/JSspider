@@ -15,7 +15,7 @@ def get_crypto(data):
 
     return result
 
-def get_comment(page, id, cursor):
+def get_post_data(page, id, cursor):
     data = {
         "rid": "R_SO_4_" + f"{id}",
         "threadId": "R_SO_4_" + f"{id}",
@@ -31,7 +31,7 @@ def get_comment(page, id, cursor):
     return data
 
 
-def get_comment_api(data):
+def get_comment(data):
     data_dict = {
         'params': data["encText"],
         'encSecKey': data["encSecKey"]
@@ -95,9 +95,9 @@ if __name__ == '__main__':
     for music_id in music_id_list:
         cursor = int(time.time() * 1000)
         for page in range(1, 100):
-            data = get_comment(page, music_id, cursor)
+            data = get_post_data(page, music_id, cursor)
             result = get_crypto(data)
-            music_comment = get_comment_api(result)
+            music_comment = get_comment(result)
             if page == 1:
                 parse_hot_comment(music_comment)
             cursor = parse_comment_json(music_comment, music_id)
