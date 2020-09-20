@@ -1,0 +1,42 @@
+# -*- coding:utf-8 -*-
+import pandas as pd
+import time
+import requests
+import re
+
+
+def get_url(oid, start, end):
+    url_list = []
+    date_list = [i for i in pd.date_range(start, end).strftime('%Y-%m-%d')]
+    for date in date_list:
+        url = f"https://api.bilibili.com/x/v2/dm/history?type=1&oid={oid}&date={date}"
+        url_list.append(url)
+    return url_list
+
+
+def get_danmu(url_list, name):
+    headers = {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36',
+        'Cookie': "在浏览器复制已经登录的b站cookie"
+    }
+
+    for i in range(len(url_list)):
+        url = url_list[i]
+        response = requests.get(url, headers=headers)
+        response = response.content.decode('utf-8')
+        print(f'{url[-10:]}爬取完毕')
+        result = re.findall('<d\sp=".*?">(.*?)</d>', response)
+        for i in result:
+            with open(f"{name}.txt", 'a', encoding='utf-8') as f:
+                f.write(i + '\n')
+
+
+if __name__ == '__main__':
+    name = input("请输入视频名称：")
+    oid = input("请输入对应视频oid：")
+    start = input('按照此格式（2020-9-19）输入开始时间：')
+    end = input('按照此格式（2020-9-20）输入结束时间：')
+    print(f"========正在爬取 {name} 弹幕========")
+    url_list = get_url(oid, start, end)
+    get_danmu(url_list, name)
+    print(f"{name}.txt已生成")
